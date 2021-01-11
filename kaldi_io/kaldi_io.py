@@ -447,6 +447,15 @@ def read_mat(file_or_fd, range_slice=None):
      Reads single kaldi matrix, supports ascii and binary.
      file_or_fd : file, gzipped file, pipe or opened file descriptor.
     """
+
+    # if specified parse range from file path
+    if range_slice is None:
+        (rxfile, slice) = _strip_mat_range(file_or_fd)
+        if slice is not None:
+            if ((slice[0].step != None) or (len(slice) == 2 and (slice[1].step != None))):
+                raise NotImplementedError("Step other than 1 in slices is currently not supported.")
+            return read_mat(rxfile, slice)
+
     fd = open_or_fd(file_or_fd)
     try:
         binary = fd.read(2).decode()
